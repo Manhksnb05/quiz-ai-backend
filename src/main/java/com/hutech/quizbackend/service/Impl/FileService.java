@@ -1,5 +1,6 @@
-package com.hutech.quizbackend.service;
+package com.hutech.quizbackend.service.Impl;
 
+import com.hutech.quizbackend.service.IFileService;
 import org.apache.pdfbox.Loader; // Quan trọng: Dùng Loader thay cho PDDocument trực tiếp
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -11,8 +12,9 @@ import java.io.InputStream;
 import java.util.stream.Collectors;
 
 @Service
-public class FileService {
+public class FileService implements IFileService {
 
+    @Override
     public String extractText(MultipartFile file) throws Exception {
         String fileName = file.getOriginalFilename();
         if (fileName == null) return "";

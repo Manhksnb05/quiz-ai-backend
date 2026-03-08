@@ -1,7 +1,9 @@
 package com.hutech.quizbackend.controller;
 
-import com.hutech.quizbackend.service.FileService;
-import com.hutech.quizbackend.service.GeminiService;
+import com.hutech.quizbackend.model.request.AIExplainRequestDTO;
+import com.hutech.quizbackend.model.response.AIExplainResponseDTO;
+import com.hutech.quizbackend.service.Impl.FileService;
+import com.hutech.quizbackend.service.Impl.GeminiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,53 +11,43 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/ai")
-@CrossOrigin(origins = "*") // Hỗ trợ kết nối Frontend sau này
+// Sửa origins để khớp với SecurityConfig và Frontend Vite
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class GeminiController {
 
-    @Autowired
-    private GeminiService geminiService;
+    @Autowired private GeminiService geminiService;
+    @Autowired private FileService fileService;
 
-    @Autowired
-    private FileService fileService;
-
-    /**
-     * CÁCH 1: Tạo câu hỏi từ từ khóa (Topic)
-     * URL: http://localhost:8080/api/ai/generate?topic=Java
-     */
-    @GetMapping("/generate")
-    public ResponseEntity<String> generateByTopic(@RequestParam String topic) {
-        String result = geminiService.generateAndSaveQuiz(topic);
-        return ResponseEntity.ok(result);
-    }
-
-    /**
-     * CÁCH 2: Tạo câu hỏi bằng cách tải file (PDF, DOCX, TXT)
-     * URL: POST http://localhost:8080/api/ai/upload
-     */
+    // 1. API: Trích xuất câu hỏi trong file user gửi lên
     @PostMapping("/upload")
     public ResponseEntity<String> generateByFile(@RequestParam("file") MultipartFile file) {
         try {
-            // 1. Bảo mật: Kiểm tra file rỗng
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body("Vui lòng chọn một file!");
-            }
+            if (file.isEmpty()) return ResponseEntity.badRequest().body("Vui lòng chọn file!");
 
-            // 2. Chống DDoS: Giới hạn kích thước file (Ví dụ 5MB)
-            if (file.getSize() > 5 * 1024 * 1024) {
-                return ResponseEntity.badRequest().body("File quá lớn! Giới hạn tối đa là 5MB.");
-            }
+            // Log để Mạnh kiểm tra quá trình xử lý trong Console IntelliJ
+            System.out.println("Đang trích xuất file: " + file.getOriginalFilename());
 
-            // 3. Bóc tách văn bản từ file tài liệu
             String extractedText = fileService.extractText(file);
-
-            // 4. Gửi nội dung văn bản cho Gemini AI để soạn câu hỏi và lưu MySQL
-            // Chúng ta lồng nội dung file vào Prompt để AI hiểu ngữ cảnh
-            String aiResponse = geminiService.generateAndSaveQuiz("Dựa trên tài liệu này: " + extractedText);
+            // Gửi prompt kèm nội dung file cho AI
+            String aiResponse = geminiService.generateAndSaveQuiz(extractedText);
 
             return ResponseEntity.ok(aiResponse);
-
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi xử lý file: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+    // 2. API: Yêu cầu AI giải thích câu hỏi
+    @PostMapping("/explain")
+    public ResponseEntity<?> explainAnswer(@RequestBody AIExplainRequestDTO request) {
+
+        try {
+            // Service giờ đây trả về DTO đã được chia nhỏ
+            AIExplainResponseDTO response = geminiService.explainQuestion(request.getQuestionId(), request.getUserSelectedOption());
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
