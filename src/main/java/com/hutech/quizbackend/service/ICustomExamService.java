@@ -1,5 +1,6 @@
 package com.hutech.quizbackend.service;
 
+import com.hutech.quizbackend.model.dto.CustomExamSummaryDTO;
 import com.hutech.quizbackend.model.dto.CustomExamTakeDTO;
 import com.hutech.quizbackend.model.request.CustomExamRequestDTO;
 import com.hutech.quizbackend.model.response.CustomExamResponseDTO;
@@ -19,4 +20,6 @@ public interface ICustomExamService {
     void softDeleteCustomExams(List<Long> ids);
 
     byte[] exportCustomExamToWord(Long customExamId);
+
+    List<CustomExamSummaryDTO> getUserCustomExams(Long userId);
 }

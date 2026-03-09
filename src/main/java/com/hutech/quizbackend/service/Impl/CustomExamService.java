@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -336,5 +337,33 @@ public class CustomExamService implements ICustomExamService {
         } catch (Exception e) {
             throw new RuntimeException("Lỗi trong quá trình tạo file Word: " + e.getMessage());
         }
+    }
+
+    // Tính năng: Lấy danh sách đề thi tùy chỉnh của User
+    @Override
+    public List<CustomExamSummaryDTO> getUserCustomExams(Long userId) {
+        // 1. Tìm User để lấy Email
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+
+        // 2. Tìm CustomExams theo Email
+        List<CustomExam> exams = customExamRepository.findByUserEmailAndActiveTrueOrderByCreatedAtDesc(user.getEmail());
+
+        // 3. Map sang DTO
+        List<CustomExamSummaryDTO> dtoList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        for (CustomExam ce : exams) {
+            CustomExamSummaryDTO dto = new CustomExamSummaryDTO();
+            dto.setId(ce.getId());
+            dto.setTitle(ce.getTitle());
+            dto.setTimeLimit(ce.getTimeLimit());
+            dto.setQuestionCount(ce.getQuestionCount());
+            if (ce.getCreatedAt() != null) {
+                dto.setCreatedAt(ce.getCreatedAt().format(formatter));
+            }
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
 }

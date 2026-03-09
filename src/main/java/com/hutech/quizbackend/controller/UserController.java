@@ -1,6 +1,7 @@
 package com.hutech.quizbackend.controller;
 
 import com.hutech.quizbackend.model.dto.ResultHistoryDTO;
+import com.hutech.quizbackend.model.dto.UserDTO;
 import com.hutech.quizbackend.service.Impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,16 @@ public class UserController {
             return ResponseEntity.ok("Đã xóa " + resultIds.size() + " lịch sử làm bài thành công!");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 3. API: Lấy thông tin User
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDTO> getUserInfo(@PathVariable Long userId) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }

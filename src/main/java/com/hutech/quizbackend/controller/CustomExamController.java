@@ -92,4 +92,14 @@ public class CustomExamController {
             return ResponseEntity.internalServerError().body(null);
         }
     }
+
+    // 6. API: Lấy danh sách đề thi tùy chỉnh của User
+    @GetMapping("/custom-exams/user/{userId}")
+    public ResponseEntity<List<CustomExamSummaryDTO>> getUserCustomExams(@PathVariable Long userId) {
+        try {
+            return ResponseEntity.ok(customExamService.getUserCustomExams(userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }

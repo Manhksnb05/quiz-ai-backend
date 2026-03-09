@@ -123,4 +123,16 @@ public class ExamController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // 9. API: Lấy danh sách bộ đề của User
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getUserExams(@PathVariable Long userId) {
+
+        try {
+            return ResponseEntity.ok(examService.getUserExams(userId));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

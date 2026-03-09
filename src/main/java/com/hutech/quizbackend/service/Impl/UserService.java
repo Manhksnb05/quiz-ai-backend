@@ -1,8 +1,11 @@
 package com.hutech.quizbackend.service.Impl;
 
+import com.hutech.quizbackend.entity.User;
 import com.hutech.quizbackend.model.dto.ResultHistoryDTO;
 import com.hutech.quizbackend.entity.Result;
+import com.hutech.quizbackend.model.dto.UserDTO;
 import com.hutech.quizbackend.repository.ResultRepository;
+import com.hutech.quizbackend.repository.UserRepository;
 import com.hutech.quizbackend.service.IUserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,8 @@ import java.util.List;
 public class UserService implements IUserService {
 
     private final ResultRepository resultRepository;
+
+    private final UserRepository userRepository;
 
     @Override
     public List<ResultHistoryDTO> getUserResultHistory(Long userId) {
@@ -66,5 +71,20 @@ public class UserService implements IUserService {
 
         results.forEach(result -> result.setActive(false));
         resultRepository.saveAll(results);
+    }
+
+    @Override
+    public UserDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng!"));
+
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setName(user.getName());
+        dto.setRole(user.getRole());
+        dto.setProvider(user.getProvider());
+
+        return dto;
     }
 }

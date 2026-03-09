@@ -21,4 +21,7 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
 
     // Lấy toàn bộ danh sách bộ đề chưa bị xóa, mới nhất xếp trước
     List<Exam> findByActiveTrueOrderByCreatedAtDesc();
+
+    // Tìm danh sách bộ đề do 1 User tạo, chưa bị xóa, mới nhất xếp trước
+    List<Exam> findByUserIdAndActiveTrueOrderByCreatedAtDesc(Long userId);
 }

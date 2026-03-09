@@ -318,4 +318,25 @@ public class ExamService implements IExamService {
 
         return "Đã cập nhật trạng thái bộ đề thành: " + formattedStatus;
     }
+
+    // Tính năng: Lấy danh sách bộ đề gốc của 1 User cụ thể
+    @Override
+    public List<ExamSummaryDTO> getUserExams(Long userId) {
+        List<Exam> exams = examRepository.findByUserIdAndActiveTrueOrderByCreatedAtDesc(userId);
+        List<ExamSummaryDTO> dtoList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        for (Exam exam : exams) {
+            ExamSummaryDTO dto = new ExamSummaryDTO();
+            dto.setId(exam.getId());
+            dto.setTitle(exam.getTitle());
+            dto.setTotalQuestions(exam.getTotalQuestions());
+            dto.setStatus(exam.getStatus());
+            if (exam.getCreatedAt() != null) {
+                dto.setCreatedAt(exam.getCreatedAt().format(formatter));
+            }
+            dtoList.add(dto);
+        }
+        return dtoList;
+    }
 }

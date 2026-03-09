@@ -22,4 +22,6 @@ public interface IExamService {
     ExamSummaryDTO saveExtractedExam(SaveExamRequestDTO request);
 
     byte[] exportExamToWord(Long examId);
+
+    List<ExamSummaryDTO> getUserExams(Long userId);
 }
