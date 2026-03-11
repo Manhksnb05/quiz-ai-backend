@@ -85,7 +85,7 @@ public class GeminiService implements IGeminiService {
 
     // ── Gọi AI và ghép kết quả với answeredList ───────────────────────────────
     private String callAI(String inputText, List<QuizParser.ParsedQuestion> answeredList) {
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
 
         try {
             StringBuilder sb = new StringBuilder();
